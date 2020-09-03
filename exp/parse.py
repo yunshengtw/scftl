@@ -52,13 +52,13 @@ if __name__ == '__main__':
 
         _, cols_sync = load_csv('raw/sync-' + str(wr_interval) + '.log', astype='float', delimiter=' ')
         y_scale_sync = [safe_scale(val, 1/10000.0) for val in cols_sync[-1]]
-        save_csv('gen/sync-' + str(wr_interval) + '.csv', [y_scale_async[1:]])
+        save_csv('gen/sync-' + str(wr_interval) + '.csv', [y_scale_sync[1:]])
         #print(y_scale_sync)
 
-        _, cols_sc = load_csv('raw/scftl-' + str(wr_interval) + '.log', astype='float', delimiter=' ')
-        y_scale_sc = [safe_scale(val, 1/10000.0) for val in cols_sc[-1]]
-        save_csv('gen/scftl-' + str(wr_interval) + '.csv', [y_scale_async[1:]])
-        #print(y_scale_sc)
+        _, cols_scftl = load_csv('raw/scftl-' + str(wr_interval) + '.log', astype='float', delimiter=' ')
+        y_scale_scftl = [safe_scale(val, 1/10000.0) for val in cols_scftl[-1]]
+        save_csv('gen/scftl-' + str(wr_interval) + '.csv', [y_scale_scftl[1:]])
+        #print(y_scale_scftl)
 
     # Figure 6
     sqlite_res = [
