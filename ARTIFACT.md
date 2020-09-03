@@ -57,7 +57,7 @@ We provide a Docker image containing all the tools required to evaluate this art
 You can pull the image with the following command:
 
 ```
-$ docker pull yunshengchang/scftl
+$ docker pull yunshengchang/scftl:artifact
 ```
 
 ### Start a Docker container
