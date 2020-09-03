@@ -1,0 +1,38 @@
+# -*- makefile-gmake -*-
+
+$(O)/lib/%.o: CFLAGS:=$(CFLAGS) -DXV6_USER
+$(O)/lib/%.o: CXXFLAGS:=$(CXXFLAGS) -DXV6_USER
+
+ULIB = ulib.o printf.o umalloc.o uthread.o fmt.o stdio.o \
+       string.o threads.o crt.o sysstubs.o perf.o \
+       getopt.o rand.o msort.o qsort.o ctype.o \
+       time.o timemath.o cpprt.o thread.o spawn.o \
+       setjmp.o signal.o sig_restore.o
+ULIB := $(addprefix $(O)/lib/, $(ULIB))
+ULIBA = $(O)/lib/libu.a
+ULIB_BEGIN := $(O)/lib/crtbegin.o
+ULIB_END := $(O)/lib/crtend.o
+
+$(O)/lib/sysstubs.S: tools/syscalls.py kernel/*.cc
+	$(call SYSCALLGEN,--ustubs)
+
+$(O)/include/sysstubs.h: tools/syscalls.py kernel/*.cc
+	$(call SYSCALLGEN,--udecls)
+
+# Assume all of the library sources include sysstubs.h
+$(ULIB): $(O)/include/sysstubs.h
+
+$(O)/lib/cxxruntime: $(CXXRUNTIME)
+	@echo "  AR x   $^"
+	$(Q)rm -rf $@
+	$(Q)mkdir -p $@
+	$(Q)cd $@; for a in $(CXXRUNTIME); do $(AR) x $$a; done
+
+$(ULIBA): $(ULIB) $(O)/lib/cxxruntime
+	@echo "  AR     $@"
+	$(Q)mkdir -p $(@D)
+	$(Q)$(AR) rc $@ $(ULIB) $(O)/lib/cxxruntime/*
+
+.PRECIOUS: $(O)/lib/%.o
+.PRECIOUS: $(ULIBA)
+-include $(O)/lib/*.d

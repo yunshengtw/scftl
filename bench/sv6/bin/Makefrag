@@ -1,0 +1,174 @@
+# -*- makefile-gmake -*-
+
+$(O)/bin/%.o: CFLAGS:=$(CFLAGS)
+$(O)/bin/%.o: CXXFLAGS:=$(CXXFLAGS)
+
+ifeq ($(PLATFORM),xv6)
+$(O)/bin/%.o: CFLAGS:=$(CFLAGS) -DXV6_USER
+$(O)/bin/%.o: CXXFLAGS:=$(CXXFLAGS) -DXV6_USER
+endif
+
+UPROGS_BIN= \
+        bench \
+	cat \
+        du \
+	echo \
+        exechack \
+	init \
+	forkexectree \
+	forkexecbench \
+	forktree \
+	login \
+	ls \
+	mapbench \
+	allocbench \
+	maptest \
+	mkdir \
+	sh \
+	nsh \
+	halt \
+	time \
+	sleep \
+	dirbench \
+	usertests \
+	lockstat \
+	cp \
+	perf \
+        xtime \
+	asharing \
+	rm \
+	avar \
+	schedbench \
+	filebench \
+	gcbench \
+	vmimbalbench \
+	appendtest \
+	linkbench \
+        tlstest \
+	crwpbench \
+	benchhdr \
+	monkstats \
+	countbench \
+        mv \
+	local_server \
+	local_client \
+	mailbench \
+	mailfilter\
+	base64 \
+	tee \
+        ln \
+	forktest \
+	fdbench \
+	mail-enqueue \
+	mail-qman \
+	mail-deliver \
+	disktest \
+	dd \
+
+ifeq ($(HAVE_LWIP),y)
+UPROGS_BIN += \
+       telnetd \
+       httpd
+endif
+
+# Binaries that are known to build on PLATFORM=native
+UPROGS_NATIVE := \
+	allocbench \
+	base64 \
+	benchhdr \
+	cat \
+	cp \
+	crwpbench \
+	dd \
+	dirbench \
+	echo \
+	fdbench \
+	filebench \
+	forktest \
+	halt \
+	init \
+	linkbench \
+	ls \
+	mail-deliver \
+	mail-enqueue \
+	mail-qman \
+	mailbench \
+	mailfilter \
+	mapbench \
+	mkdir \
+	mount \
+	mv \
+	sh \
+	tee \
+	vmimbalbench \
+
+ifeq ($(HAVE_TESTGEN),y)
+UPROGS_BIN    += fstest
+UPROGS_NATIVE += fstest
+endif
+
+UPROGS := $(UPROGS_BIN) \
+          metis_string_match \
+          metis_matrix_mult \
+	  metis_wrmem
+
+UPROGS := $(addprefix $(O)/bin/, $(UPROGS))
+
+FSEXTRA += \
+	bin/linkbench-tom \
+	bin/linkbench-ben \
+	bin/mapbench-ben \
+	bin/metis_wrmem-josmp \
+	bin/metis_wrmem-ben \
+	bin/lsocket \
+	bin/countbench-ben \
+	bin/forktest-ben\
+	bin/mailbench-ben\
+	bin/fdbench-ben \
+
+# (ULIBA will be empty for native builds)
+UPROGS_LIBS := $(ULIBA) $(LIBUTIL_A)
+
+ifeq ($(PLATFORM),native)
+ALL += $(addprefix $(O)/bin/, $(UPROGS_NATIVE))
+LINK_CMD_BEGIN := $(Q)$(CXX) $(CXXFLAGS) 
+LINK_CMD_END :=  -Wl,--start-group $(UPROGS_LIBS) -Wl,--end-group $(ULIB_END)
+else
+LINK_CMD_BEGIN := $(Q)$(LD) $(LDFLAGS) 
+LINK_CMD_END :=  --start-group $(UPROGS_LIBS) --end-group $(ULIB_END)
+endif
+
+ifeq ($(PLATFORM),native)
+# Statically link for the Linux environment so we can create a trivial
+# initramfs without libraries
+LINK_CMD_END := $(LINK_CMD_END) -static
+# Unfortunately, the weak symbols in libpthread mean pthreads don't
+# work with static linking unless we force the linker to include the
+# whole archive.  This is, apparently, "not a bug"
+# (http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52590).
+LINK_CMD_BEGIN += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+
+# Build an initramfs
+$(O)/initramfs: $(addprefix $(O)/bin/, $(UPROGS_NATIVE))
+	@echo "  CPIO   $@"
+	$(Q)(cd $(<D); ls -1 $(^F) | cpio -o -H newc) > $@
+ALL += $(O)/initramfs
+endif
+
+$(O)/bin/%.unstripped: $(O)/bin/%.o $(ULIB_BEGIN) $(ULIB_END) $(UPROGS_LIBS)
+	@echo "  LD     $@"
+	$(Q)mkdir -p $(@D)
+	$(Q)$(LINK_CMD_BEGIN) -o $@ $(ULIB_BEGIN) $< $(LINK_CMD_END)
+
+$(O)/bin/%: $(O)/bin/%.unstripped
+	@echo "  STRIP  $@"
+	$(Q)mkdir -p $(@D)
+	$(Q)$(STRIP) -o $@ $<
+
+ifeq ($(PLATFORM),xv6)
+# Assume everything inclues user.h, which includes sysstubs.h
+$(patsubst %,$(O)/bin/%.o,$(UPROGS_BIN)): $(O)/include/sysstubs.h
+endif
+
+.PRECIOUS: $(O)/bin/%.o $(O)/bin/%.unstripped
+-include $(O)/bin/*.d

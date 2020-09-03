@@ -1,0 +1,9 @@
+#!/sh
+
+benchhdr "--bench=forktest"
+echo
+
+for ncore in 1 {10..80..10}; do
+    forktest $ncore 10000
+    sleep 5
+done
