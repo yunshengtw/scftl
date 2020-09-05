@@ -14,9 +14,9 @@ The artifact consists of four major parts:
 
 ### OS requirement
 
-* Most recent Linux distributions should work. We have tested on Ubuntu 18.04 and NixOS.
+* Most recent Linux distributions should work. We have tested on Ubuntu 18.04 and NixOS 20.03.
 
-Although we provide a Docker image, the last part (running experiments on SCFTL) will **NOT** work on Windows or Mac even with *Docker Desktop for Windows* or *Docker Desktop for Mac* because it requires the host OS to expose the KVM interface.
+Although we provide a Docker image, the last part (running experiments on SCFTL) will **NOT** work on Windows or Mac even with *Docker Desktop for Windows* or *Docker Desktop for Mac*. The reason is that the last part requires the host OS to expose the KVM interface.
 
 ### Hardware requirement
 
@@ -52,13 +52,13 @@ We provide a Docker image containing all the tools required to evaluate this art
 You can pull the image with the following command:
 
 ```
-$ docker pull yunshengchang/scftl:artifact
+$ docker pull yunshengchang/scftl
 ```
 
 ### Start a Docker container
 
 ```
-$ sudo docker run -it --rm --privileged yunshengchang/scftl:artifact
+$ sudo docker run -it --rm --privileged yunshengchang/scftl
 ```
 
 The flag `--privileged` is required because FEMU needs to access the KVM interface (at `/dev/kvm`).
@@ -89,7 +89,7 @@ Pass
 
 ### Detailed description
 
-We wrote a [document](agda/sc.pdf) to describe the mechanized proof in detail.
+We wrote a [document](https://github.com/yunshengtw/scftl/blob/master/agda/sc.pdf) to describe the mechanized proof in detail.
 
 ## Step 2: Verifying SCFTL against its specification
 
@@ -186,14 +186,14 @@ cpu time: 8523 real time: 3786908 gc time: 339
 * `verif/lib/llvm-extend.rkt`: this file intercepts Serval's LLVM `call` command to support flash operations (e.g., `flash_program`)
 * `verif/lib/flash.rkt`: the flash memory model described in Section 5.1
 * `verif/ftl.rkt`: this file contains the code that actually performs the verfication tasks
-* `verif/inv-rel.rkt`: the definitions of RI, AR, CI, and CR, including the optimization of grouping conditions described in Section 5.3
+* `verif/inv-rel.rkt`: the definitions of $RI$, $AR$, $CI$, and $CR$, including the optimization of grouping conditions described in Section 5.3
 * `verif/spec.rkt`: the SCFTL specification, including the use of auxiliary variables described in Section 5.2
 * `verif/partition.rkt`: the use of the partitioning technique described in Section 5.4
 * `src/ftl.c`: the SCFTL implementation
 
 ## Step 3: Testing crash-safety of SCFTL
 
-As described in Section 7.1, we also design a testing framework that could emulate flash memory, generate disk workload, simulate crashes, and compare the results of SCFTL with the golden results.
+As described in Section 7.1, we also design a testing framework that could emulate flash memory, generate disk workloads, simulate crashes, and compare the results of SCFTL with the golden results.
 
 The testing framework is implemented by `src/crash-test.c` and `src/flashemu.c`.
 
@@ -218,9 +218,9 @@ Pass all 186 times of comparison.
 ### Notes
 
 1. As described in the paper, we ran the test with 4 configurations, each for 8 hours, but the instruction above only executes each configuration for two minutes. You can modify this by telling `test.sh` how long (in minutes) you want to run the test. For example, `./test.sh 480` will run the test with 4 configurations, each for 8 hours.
-2. We use main memory to emulate flash memory, so running each test may require up to 8 GB of main memory. The test may fail when the system is running out of memory.
+2. We use main memory to emulate flash memory, so running each test may require up to 8 GB of main memory. The test may fail when the system runs out of memory.
 
-## Step 4: Runnig experiments on xv6 + SCFTL
+## Step 4: Running experiments on SCFTL
 
 There are two sets of experiments in the paper.
 The first set (Section 7.2) uses a random write workload to analyze the overhead due to snapshot consistency.
