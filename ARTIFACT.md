@@ -10,7 +10,7 @@ The artifact consists of four major parts:
 1. Verifying snapshot consistency (Section 4)
 2. Verifying SCFTL against its specification (Section 5)
 3. Testing crash safety of SCFTL (Section 7.1)
-4. Running experiments on SCFTL (Section 7.2  Figure 5 and 7.3)
+4. Running experiments on SCFTL (Section 7.2 and 7.3)
 
 ### OS requirement
 
@@ -257,6 +257,11 @@ Connect to the FEMU instance via ssh:
 
 ```
 $ ssh-femu
+```
+
+The following commands are performed on the FEMU instance.
+
+```
 $ git clone https://github.com/yunshengtw/scftl.git && cd scftl && make
 $ cd exp
 $ ./randwr.sh && ./app.sh
