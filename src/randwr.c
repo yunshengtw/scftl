@@ -43,7 +43,7 @@ static void random_write_4k_loop(int wr_interval)
         should_flush = 0;
     }
     gettimeofday(&start, NULL);
-    while (epoch < 3) {
+    while (epoch < 60) {
         for (int j = 0; j < wr_interval; j++) {
             random_write_4k();
             wr_in_one_epoch++;

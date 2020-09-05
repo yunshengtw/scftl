@@ -7,8 +7,8 @@ wi_to_fig5 = {
     2048    : "d"
 }
 
-#samples = [0, 10, 20, 30, 40, 50]
-samples = [0]
+samples = [0, 10, 20, 30, 40, 50]
+#samples = [0]
 
 if __name__ == '__main__':
     # Figure 5
