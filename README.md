@@ -9,7 +9,7 @@ The instructions to play with the artifacts are described in [ARTIFACT.md](ARTIF
 We are thankful to the developers of the following projects that make the verification and evaluation of SCFTL possible:
 
 * [Agda](https://github.com/agda/agda)
-* [Serval](https://github.com/uw-unsat/serval)
+* [Serval](https://github.com/uw-unsat/serval) and [Rosette](https://github.com/emina/rosette)
 * [Xv6](https://github.com/mit-pdos/xv6-public)
 * [FEMU](https://github.com/ucare-uchicago/femu)
 * Benchmark (taken from [FSCQ](https://github.com/mit-pdos/fscq) and [sv6](https://github.com/aclements/sv6))
